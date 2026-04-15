@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "description": "Index of available Claude Code skills adapted for Windsurf",
+  "loader": ".windsurf/skill-loader.js",
+  "categories": {
+    "development": {
+      "description": "Core development workflows and patterns",
+      "skills": [
+        "skill-creator/skill-creator",
+        "feature-dev/feature-dev",
+        "code-review/code-review",
+        "mcp-server-dev/mcp-server-dev",
+        "plugin-dev/plugin-dev",
+        "commit-commands/commit-commands",
+        "pr-review-toolkit/pr-review-toolkit"
+      ]
+    },
+    "output-styles": {
+      "description": "Response formatting styles",
+      "skills": [
+        "explanatory-output-style/explanatory",
+        "learning-output-style/learning"
+      ]
+    },
+    "language-support": {
+      "description": "LSP and language-specific tools",
+      "skills": [
+        "typescript-lsp/typescript",
+        "pyright-lsp/python",
+        "rust-analyzer-lsp/rust",
+        "clangd-lsp/cpp",
+        "gopls-lsp/go",
+        "csharp-lsp/csharp",
+        "jdtls-lsp/java",
+        "kotlin-lsp/kotlin",
+        "lua-lsp/lua",
+        "php-lsp/php",
+        "ruby-lsp/ruby",
+        "swift-lsp/swift"
+      ]
+    },
+    "utilities": {
+      "description": "Utility and helper skills",
+      "skills": [
+        "claude-code-setup/setup",
+        "claude-md-management/md-mgmt",
+        "session-report/session-report",
+        "hookify/hookify",
+        "playground/playground"
+      ]
+    }
+  },
+  "usage": {
+    "search": "node .windsurf/skill-loader.js search <query>",
+    "list": "node .windsurf/skill-loader.js list",
+    "show": "node .windsurf/skill-loader.js show <plugin> <skill>"
+  }
+}
