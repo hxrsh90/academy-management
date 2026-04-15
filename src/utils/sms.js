@@ -2,8 +2,15 @@ const twilio = require('twilio');
 
 let twilioClient = null;
 
-if (process.env.SMS_PROVIDER === 'twilio' && process.env.TWILIO_ACCOUNT_SID) {
-  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+if (process.env.SMS_PROVIDER === 'twilio' && 
+    process.env.TWILIO_ACCOUNT_SID && 
+    process.env.TWILIO_ACCOUNT_SID.startsWith('AC')) {
+  try {
+    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  } catch (error) {
+    console.warn('Twilio initialization failed, using mock mode:', error.message);
+    twilioClient = null;
+  }
 }
 
 const sendSMS = async (to, message) => {

@@ -1,9 +1,17 @@
 {
   "version": 2,
+  "name": "academy-management",
   "builds": [
     {
       "src": "src/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
     }
   ],
   "routes": [
@@ -12,14 +20,23 @@
       "dest": "src/server.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "src/server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/build/$1"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   },
   "github": {
-    "silent": true
+    "enabled": true,
+    "silent": false,
+    "autoJobCancelation": true
   }
 }

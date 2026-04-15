@@ -6,6 +6,9 @@ client/node_modules/
 .env
 .env.local
 .env.*.local
+.env.dev
+.env.staging
+.env.production
 
 # Uploads
 uploads/*

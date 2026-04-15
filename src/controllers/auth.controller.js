@@ -16,6 +16,7 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
+    console.log('Login request body:', req.body);
     const result = await authService.login(req.body);
     res.json({
       success: true,
@@ -23,6 +24,7 @@ const login = async (req, res, next) => {
       message: 'Login successful'
     });
   } catch (error) {
+    console.error('Login error:', error);
     next(error);
   }
 };

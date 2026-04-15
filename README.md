@@ -166,15 +166,90 @@ cd client && npm start   # Frontend: http://localhost:3000
 - `GET /api/v1/reports/payments` - Payment report
 - `GET /api/v1/reports/enrollment` - Enrollment trends
 
-## User Roles
+## User Roles & Permissions
 
-| Role | Permissions |
-|------|-------------|
-| Super Admin | Full system control |
-| Admin | Manage students, classes, payments, reports |
-| Coach | View assigned classes, mark attendance |
-| Student | View own profile, classes, attendance, payments |
-| Parent | View child's data, make payments |
+### Available Roles
+- **super_admin** - Highest level, full system control
+- **admin** - Administrative access for daily operations
+- **coach** - Instructor access for class management
+- **student** - Student access for self-service
+- **parent** - Parent/guardian access to child's data
+
+### Permission Matrix
+
+#### Users Module (`/api/v1/users`)
+| Action | super_admin | admin | coach | student | parent |
+|--------|-------------|-------|-------|---------|--------|
+| List users | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Create user | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Get user by ID | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Update user | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Delete user | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+#### Students Module (`/api/v1/students`)
+| Action | super_admin | admin | coach | student | parent |
+|--------|-------------|-------|-------|---------|--------|
+| List students | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Create student | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Get student details | ✅ | ✅ | ✅ | ✅* | ❌ |
+| Update student | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Delete student | ✅ | ✅ | ❌ | ❌ | ❌ |
+| View student classes | ✅ | ✅ | ✅ | ✅* | ❌ |
+| View student attendance | ✅ | ✅ | ✅ | ✅* | ❌ |
+| View student payments | ✅ | ✅ | ❌ | ✅* | ✅* |
+
+*\* Can only view their own data*
+
+#### Classes Module (`/api/v1/classes`)
+| Action | super_admin | admin | coach | student | parent |
+|--------|-------------|-------|-------|---------|--------|
+| List classes | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Create class | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Get class details | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Update class | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Delete class | ✅ | ✅ | ❌ | ❌ | ❌ |
+| View class students | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Add student to class | ✅ | ✅ | ❌ | ❌ | ❌ |
+
+#### Attendance Module (`/api/v1/attendance`)
+| Action | super_admin | admin | coach | student | parent |
+|--------|-------------|-------|-------|---------|--------|
+| Mark attendance | ✅ | ✅ | ✅ | ❌ | ❌ |
+| View attendance records | ✅ | ✅ | ✅ | ✅* | ❌ |
+
+#### Payments Module (`/api/v1/payments`)
+| Action | super_admin | admin | coach | student | parent |
+|--------|-------------|-------|-------|---------|--------|
+| Record payment | ✅ | ✅ | ❌ | ❌ | ❌ |
+| View payments | ✅ | ✅ | ❌ | ✅* | ✅* |
+
+### Creating Users
+
+**Super Admin Creating Staff:**
+```bash
+POST /api/v1/users
+{
+  "email": "coach@academy.com",
+  "mobile": "9876543210",
+  "password": "password123",
+  "role": "coach"
+}
+```
+
+**Public Student Registration:**
+```bash
+POST /api/v1/auth/register
+{
+  "mobile": "9876543210",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+### Default Seeded Users
+- **Super Admin:** `9999999999` / `admin123`
+- **Coach:** `8888888888` / `coach123`
 
 ## Project Structure
 
@@ -215,3 +290,61 @@ academy-platform/
 ## License
 
 MIT License - See LICENSE file for details
+
+## Branching Strategy
+
+This project uses a three-branch workflow:
+
+```
+main (production)
+  ↑
+staging (pre-production)
+  ↑
+dev (development)
+```
+
+| Branch | Purpose | Deployment | Database |
+|--------|---------|------------|----------|
+| `main` | Production code | Vercel Production | Neon `neondb` |
+| `staging` | Pre-production testing | Vercel Staging | Neon `neondb-staging` |
+| `dev` | Daily development | Vercel Preview + Local | Neon `neondb-dev` |
+
+See [WORKFLOW.md](./WORKFLOW.md) for detailed development workflow.
+
+## Current Project Status
+
+### ✅ Completed Features
+- **Backend API**: All CRUD operations for users, students, classes, attendance, payments
+- **Authentication**: JWT-based auth with password and OTP login support
+- **Role-Based Access Control**: Full permission matrix implemented
+- **Database Schema**: Complete PostgreSQL schema with migrations
+- **Seed Data**: Default admin and coach users
+- **Frontend Pages**: Login, Register, Dashboard, Students, Classes, Attendance, Payments, Reports
+- **Deployment Config**: Vercel configuration for serverless deployment
+- **Neon DB Integration**: Optimized for serverless connection pooling
+
+### ⚠️ Known Limitations
+- **Student Dashboard**: Basic version with quick links only (no progress tracking, upcoming classes)
+- **Parent Dashboard**: Not implemented separately (parents use student view)
+- **Real-time Features**: No WebSocket for live updates
+- **Email Notifications**: SendGrid integration configured but not implemented in frontend
+- **File Uploads**: Uploads configured but no UI for profile photos
+
+### 🚀 Deployment
+- **GitHub**: Private repo at `https://github.com/hxrsh90/academy-management`
+- **Vercel**: Configured for auto-deployment from GitHub
+- **Neon DB**: Connected to Vercel for production database
+- **Environment**: Use Vercel environment variables for production secrets
+
+### 📝 Development Notes
+- Backend runs on port 5001 (dev) / 5000 (default)
+- Frontend runs on port 3000
+- Neon DB connection string required for both local dev and production
+- SMS provider (Twilio) optional - falls back to mock mode
+- All API routes prefixed with `/api/v1`
+
+### 🔧 Troubleshooting
+- **Port 5000 in use**: Change `PORT` in `.env` to 5001
+- **Database connection failed**: Verify `DATABASE_URL` in `.env` matches Neon connection string
+- **CORS errors**: Check `CLIENT_URL` in `.env` matches frontend URL
+- **Login 500 error**: Check backend logs, ensure database migrations ran successfully
