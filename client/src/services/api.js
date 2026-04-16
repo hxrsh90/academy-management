@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Use environment variable for API URL, fallback to relative path for local dev
+const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
+
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
   }

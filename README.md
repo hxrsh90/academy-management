@@ -332,9 +332,11 @@ See [WORKFLOW.md](./WORKFLOW.md) for detailed development workflow.
 
 ### 🚀 Deployment
 - **GitHub**: Private repo at `https://github.com/hxrsh90/academy-management`
-- **Vercel**: Configured for auto-deployment from GitHub
+- **Deployment Strategy**: Separate backend and frontend deployments
+- **Backend**: Deployed as `academy-api.vercel.app`
+- **Frontend**: Deployed as `academy.vercel.app`
 - **Neon DB**: Connected to Vercel for production database
-- **Environment**: Use Vercel environment variables for production secrets
+- **Documentation**: See [DEPLOYMENT_SEPARATE.md](./DEPLOYMENT_SEPARATE.md) for detailed deployment instructions
 
 ### 📝 Development Notes
 - Backend runs on port 5001 (dev) / 5000 (default)

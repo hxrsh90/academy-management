@@ -10,6 +10,12 @@ client/node_modules/
 .env.staging
 .env.production
 
+# Frontend environment variables
+client/.env.development
+client/.env.production
+client/.env.staging
+client/.env.local
+
 # Uploads
 uploads/*
 !uploads/.gitkeep

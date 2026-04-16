@@ -1,34 +1,24 @@
 {
   "version": 2,
-  "name": "academy-management",
+  "name": "academy-api",
   "builds": [
     {
       "src": "src/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
     }
   ],
   "routes": [
-    {
-      "src": "/api/v1/(.*)",
-      "dest": "src/server.js"
-    },
     {
       "src": "/api/(.*)",
       "dest": "src/server.js"
     },
     {
-      "handle": "filesystem"
+      "src": "/uploads/(.*)",
+      "dest": "src/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "client/build/$1"
+      "dest": "src/server.js"
     }
   ],
   "env": {
