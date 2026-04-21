@@ -35,7 +35,9 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "CI": "false",
+    "DISABLE_ESLINT_PLUGIN": "true"
   },
   "github": {
     "enabled": true,
