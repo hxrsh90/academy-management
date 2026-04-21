@@ -1,5 +1,5 @@
 const batchModel = require('../models/batch.model');
-const { NotFoundError, ConflictError } = require('../utils/errors');
+const { NotFoundError, ConflictError } = require('../middleware/error.middleware');
 
 const findAll = async (filters) => {
   return await batchModel.findAll(filters);
