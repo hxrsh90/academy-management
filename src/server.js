@@ -18,11 +18,13 @@ const { errorHandler } = require('./middleware/error.middleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Vercel proxy so X-Forwarded-For / real IP works with rate limiter
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000,
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: { success: false, error: 'Too many requests, please try again later' },
-  trustProxy: true
+  message: { success: false, error: 'Too many requests, please try again later' }
 });
 
 app.use(helmet());
