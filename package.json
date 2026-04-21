@@ -30,7 +30,14 @@
     "concurrently": "^8.2.2",
     "nodemon": "^3.0.1"
   },
-  "keywords": ["academy", "management", "sports", "students", "fitness", "india"],
+  "keywords": [
+    "academy",
+    "management",
+    "sports",
+    "students",
+    "fitness",
+    "india"
+  ],
   "author": "",
   "license": "MIT"
 }

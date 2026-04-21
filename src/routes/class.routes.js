@@ -8,12 +8,16 @@ const router = express.Router();
 
 const createValidation = [
   body('name').notEmpty().withMessage('Class name is required'),
-  body('sportType').notEmpty().withMessage('Sport type is required'),
-  body('dayOfWeek').isIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'multiple']).withMessage('Invalid day of week'),
-  body('startTime').notEmpty().withMessage('Start time is required'),
-  body('endTime').notEmpty().withMessage('End time is required'),
-  body('capacity').isInt({ min: 1 }).withMessage('Capacity must be at least 1'),
-  body('coachId').optional().isInt().withMessage('Coach ID must be a number'),
+  body('sportType').optional().notEmpty().withMessage('Sport type is required'),
+  body('dayOfWeek').optional().isIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'multiple']).withMessage('Invalid day of week'),
+  body('startTime').optional().notEmpty().withMessage('Start time is required'),
+  body('endTime').optional().notEmpty().withMessage('End time is required'),
+  body('capacity').optional().isInt({ min: 1 }).withMessage('Capacity must be at least 1'),
+  body('coachId').custom((value) => {
+    if (value === '' || value === undefined || value === null) return true;
+    if (!isNaN(parseInt(value))) return true;
+    throw new Error('Coach ID must be a number');
+  }),
   body('skillLevel').optional().isIn(['beginner', 'intermediate', 'advanced', 'all']).withMessage('Invalid skill level'),
   validate
 ];

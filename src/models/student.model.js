@@ -25,12 +25,10 @@ const findAll = async (filters = {}, page = 1, limit = 20) => {
   const total = parseInt(countResult.rows[0].count);
 
   const query = `
-    SELECT s.*, u.email, u.mobile, u.status as user_status,
-           p.first_name as parent_first_name, p.last_name as parent_last_name, p.mobile as parent_mobile
+    SELECT s.id, s.first_name, s.last_name, s.skill_level, s.enrollment_status, s.enrollment_date,
+           u.mobile, u.email, u.status as user_status
     FROM students s
     JOIN users u ON s.user_id = u.id
-    LEFT JOIN users pu ON s.parent_id = pu.id
-    LEFT JOIN students p ON pu.id = p.user_id
     ${whereClause}
     ORDER BY s.created_at DESC
     LIMIT $${paramIndex++} OFFSET $${paramIndex++}
@@ -144,26 +142,37 @@ const getAttendance = async (studentId, filters = {}) => {
     params.push(filters.classId);
   }
 
-  const result = await pool.query(
-    `SELECT a.*, c.name as class_name, c.sport_type
+  let query = `SELECT a.*, c.name as class_name, c.sport_type
      FROM attendance a
      JOIN classes c ON a.class_id = c.id
      ${whereClause}
-     ORDER BY a.date DESC`,
-    params
-  );
+     ORDER BY a.date DESC`;
+  
+  if (filters.limit) {
+    query += ` LIMIT $${paramIndex++}`;
+    params.push(filters.limit);
+  }
+  
+  const result = await pool.query(query, params);
   return result.rows;
 };
 
-const getPayments = async (studentId) => {
-  const result = await pool.query(
-    `SELECT p.*, u.email as recorded_by_email
+const getPayments = async (studentId, filters = {}) => {
+  const params = [studentId];
+  let paramIndex = 2;
+  
+  let query = `SELECT p.*, u.email as recorded_by_email
      FROM payments p
      LEFT JOIN users u ON p.recorded_by = u.id
      WHERE p.student_id = $1 AND p.deleted_at IS NULL
-     ORDER BY p.payment_date DESC`,
-    [studentId]
-  );
+     ORDER BY p.payment_date DESC`;
+  
+  if (filters.limit) {
+    query += ` LIMIT $${paramIndex++}`;
+    params.push(filters.limit);
+  }
+  
+  const result = await pool.query(query, params);
   return result.rows;
 };
 

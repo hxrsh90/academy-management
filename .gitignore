@@ -50,3 +50,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local test files
+test-apis.ps1
+test-results.txt

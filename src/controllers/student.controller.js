@@ -88,8 +88,8 @@ const getClasses = async (req, res, next) => {
 const getAttendance = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { from_date, to_date, class_id } = req.query;
-    const attendance = await studentService.getAttendance(parseInt(id), { fromDate: from_date, toDate: to_date, classId: class_id });
+    const { from_date, to_date, class_id, limit } = req.query;
+    const attendance = await studentService.getAttendance(parseInt(id), { fromDate: from_date, toDate: to_date, classId: class_id, limit: parseInt(limit) || null });
     res.json({
       success: true,
       data: attendance,
@@ -103,7 +103,8 @@ const getAttendance = async (req, res, next) => {
 const getPayments = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const payments = await studentService.getPayments(parseInt(id));
+    const { limit } = req.query;
+    const payments = await studentService.getPayments(parseInt(id), { limit: parseInt(limit) || null });
     res.json({
       success: true,
       data: payments,

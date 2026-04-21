@@ -101,12 +101,12 @@ const getAttendance = async (id, filters) => {
   return await studentModel.getAttendance(id, filters);
 };
 
-const getPayments = async (id) => {
+const getPayments = async (id, filters) => {
   const student = await studentModel.findById(id);
   if (!student) {
     throw new NotFoundError('Student not found');
   }
-  return await studentModel.getPayments(id);
+  return await studentModel.getPayments(id, filters);
 };
 
 module.exports = {

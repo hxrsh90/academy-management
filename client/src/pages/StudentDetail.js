@@ -9,29 +9,58 @@ const StudentDetail = () => {
   const [attendance, setAttendance] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tabLoading, setTabLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
+  const [dataLoaded, setDataLoaded] = useState({ info: false, classes: false, attendance: false, payments: false });
 
   useEffect(() => {
     fetchStudentData();
   }, [id]);
 
+  useEffect(() => {
+    if (!dataLoaded[activeTab] && activeTab !== 'info') {
+      fetchTabData(activeTab);
+    }
+  }, [activeTab]);
+
   const fetchStudentData = async () => {
     try {
       setLoading(true);
-      const [studentRes, classesRes, attendanceRes, paymentsRes] = await Promise.all([
-        api.get(`/students/${id}`),
-        api.get(`/students/${id}/classes`),
-        api.get(`/students/${id}/attendance`),
-        api.get(`/students/${id}/payments`)
-      ]);
-      setStudent(studentRes.data.data);
-      setClasses(classesRes.data.data);
-      setAttendance(attendanceRes.data.data);
-      setPayments(paymentsRes.data.data);
+      const response = await api.get(`/students/${id}`);
+      setStudent(response.data.data);
+      setDataLoaded(prev => ({ ...prev, info: true }));
     } catch (error) {
       console.error('Failed to fetch student data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTabData = async (tab) => {
+    try {
+      setTabLoading(true);
+      let response;
+      switch (tab) {
+        case 'classes':
+          response = await api.get(`/students/${id}/classes`);
+          setClasses(response.data.data);
+          break;
+        case 'attendance':
+          response = await api.get(`/students/${id}/attendance?limit=20`);
+          setAttendance(response.data.data);
+          break;
+        case 'payments':
+          response = await api.get(`/students/${id}/payments?limit=20`);
+          setPayments(response.data.data);
+          break;
+        default:
+          break;
+      }
+      setDataLoaded(prev => ({ ...prev, [tab]: true }));
+    } catch (error) {
+      console.error(`Failed to fetch ${tab} data:`, error);
+    } finally {
+      setTabLoading(false);
     }
   };
 
@@ -89,8 +118,10 @@ const StudentDetail = () => {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 capitalize ${activeTab === tab ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}
+            disabled={tabLoading && activeTab !== tab}
           >
             {tab}
+            {tabLoading && activeTab === tab && <span className="ml-2 inline-block w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>}
           </button>
         ))}
       </div>
@@ -147,7 +178,7 @@ const StudentDetail = () => {
               </tr>
             </thead>
             <tbody>
-              {attendance.slice(0, 20).map((record) => (
+              {attendance.map((record) => (
                 <tr key={record.id} className="border-t">
                   <td className="px-4 py-3">{new Date(record.date).toLocaleDateString()}</td>
                   <td className="px-4 py-3">{record.class_name}</td>

@@ -67,8 +67,8 @@ const create = async (classData) => {
      start_time, end_time, duration_minutes, coach_id, venue, capacity)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
-    [name, description, sportType, skillLevel, dayOfWeek, startTime, endTime,
-     durationMinutes, coachId, venue, capacity]
+    [name, description, sportType || 'general', skillLevel || 'beginner', dayOfWeek || 'monday',
+     startTime || '16:00', endTime || '17:00', durationMinutes || 60, coachId ? parseInt(coachId) : null, venue, capacity]
   );
   return result.rows[0];
 };
