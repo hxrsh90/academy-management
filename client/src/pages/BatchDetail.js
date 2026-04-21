@@ -76,7 +76,7 @@ const BatchDetail = () => {
   };
 
   const handleRemoveStudent = async (studentId) => {
-    if (!confirm('Remove this student from batch?')) return;
+    if (!window.confirm('Remove this student from batch?')) return;
     try {
       await api.delete(`/batches/${id}/students/${studentId}`);
       fetchStudents();
