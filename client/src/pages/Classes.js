@@ -8,13 +8,15 @@ const Classes = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '', sportType: '', skillLevel: 'beginner', dayOfWeek: 'monday',
-    startTime: '', endTime: '', capacity: 20, venue: '', coachId: ''
+    startTime: '', endTime: '', capacity: 20, venue: '', coachId: '', batchId: ''
   });
   const [coaches, setCoaches] = useState([]);
+  const [batches, setBatches] = useState([]);
 
   useEffect(() => {
     fetchClasses();
     fetchCoaches();
+    fetchBatches();
   }, []);
 
   const fetchClasses = async () => {
@@ -37,13 +39,22 @@ const Classes = () => {
     }
   };
 
+  const fetchBatches = async () => {
+    try {
+      const response = await api.get('/batches?status=active');
+      setBatches(response.data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch batches:', error);
+    }
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
       await api.post('/classes', formData);
       setShowModal(false);
       setFormData({ name: '', sportType: '', skillLevel: 'beginner', dayOfWeek: 'monday',
-        startTime: '', endTime: '', capacity: 20, venue: '', coachId: '' });
+        startTime: '', endTime: '', capacity: 20, venue: '', coachId: '', batchId: '' });
       fetchClasses();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to create class');
@@ -146,11 +157,21 @@ const Classes = () => {
                 <input type="number" value={formData.capacity} onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value)})} className="w-full px-3 py-2 border rounded" min="1" />
               </div>
               <div className="mb-4">
+                <label className="block text-sm font-bold mb-1">Batch (optional)</label>
+                <select value={formData.batchId} onChange={(e) => setFormData({...formData, batchId: e.target.value ? parseInt(e.target.value) : ''})} className="w-full px-3 py-2 border rounded">
+                  <option value="">No batch - students added manually</option>
+                  {batches.map(b => (
+                    <option key={b.id} value={b.id}>{b.name} ({b.enrolled_count || 0}/{b.capacity} students)</option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">If selected, all batch students auto-appear in attendance.</p>
+              </div>
+              <div className="mb-4">
                 <label className="block text-sm font-bold mb-1">Coach</label>
                 <select value={formData.coachId} onChange={(e) => setFormData({...formData, coachId: e.target.value ? parseInt(e.target.value) : ''})} className="w-full px-3 py-2 border rounded">
                   <option value="">Select Coach</option>
                   {coaches.map(coach => (
-                    <option key={coach.id} value={coach.id}>{coach.first_name} {coach.last_name} ({coach.mobile})</option>
+                    <option key={coach.id} value={coach.id}>{coach.email || coach.mobile}</option>
                   ))}
                 </select>
               </div>

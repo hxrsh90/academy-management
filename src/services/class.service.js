@@ -14,28 +14,8 @@ const findById = async (id) => {
 };
 
 const create = async (data) => {
-  const fieldMapping = {
-    name: 'name',
-    description: 'description',
-    sportType: 'sport_type',
-    skillLevel: 'skill_level',
-    dayOfWeek: 'day_of_week',
-    startTime: 'start_time',
-    endTime: 'end_time',
-    durationMinutes: 'duration_minutes',
-    coachId: 'coach_id',
-    venue: 'venue',
-    capacity: 'capacity'
-  };
-
-  const createData = {};
-  for (const [key, value] of Object.entries(data)) {
-    if (fieldMapping[key]) {
-      createData[fieldMapping[key]] = value;
-    }
-  }
-
-  return await classModel.create(createData);
+  // Pass data through; model handles both camelCase and snake_case
+  return await classModel.create(data);
 };
 
 const update = async (id, data) => {
@@ -56,7 +36,8 @@ const update = async (id, data) => {
     coachId: 'coach_id',
     venue: 'venue',
     capacity: 'capacity',
-    isActive: 'is_active'
+    isActive: 'is_active',
+    batchId: 'batch_id'
   };
 
   const updateData = {};

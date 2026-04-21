@@ -59,23 +59,24 @@ const findById = async (id) => {
 const create = async (classData) => {
   const {
     name, description, sportType, skillLevel, dayOfWeek,
-    startTime, endTime, durationMinutes, coachId, venue, capacity
+    startTime, endTime, durationMinutes, coachId, venue, capacity, batchId
   } = classData;
 
   const result = await pool.query(
     `INSERT INTO classes (name, description, sport_type, skill_level, day_of_week,
-     start_time, end_time, duration_minutes, coach_id, venue, capacity)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     start_time, end_time, duration_minutes, coach_id, venue, capacity, batch_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING *`,
     [name, description, sportType || 'general', skillLevel || 'beginner', dayOfWeek || 'monday',
-     startTime || '16:00', endTime || '17:00', durationMinutes || 60, coachId ? parseInt(coachId) : null, venue, capacity]
+     startTime || '16:00', endTime || '17:00', durationMinutes || 60, coachId ? parseInt(coachId) : null, venue, capacity,
+     batchId ? parseInt(batchId) : null]
   );
   return result.rows[0];
 };
 
 const update = async (id, updateData) => {
   const allowedFields = ['name', 'description', 'sport_type', 'skill_level', 'day_of_week',
-    'start_time', 'end_time', 'duration_minutes', 'coach_id', 'venue', 'capacity', 'is_active'];
+    'start_time', 'end_time', 'duration_minutes', 'coach_id', 'venue', 'capacity', 'is_active', 'batch_id'];
   const updates = [];
   const values = [];
   let paramIndex = 1;
@@ -104,12 +105,31 @@ const softDelete = async (id) => {
 };
 
 const getStudents = async (classId) => {
+  // If class belongs to a batch, return the batch's students (auto-inherited)
+  const classRow = await pool.query('SELECT batch_id FROM classes WHERE id = $1 AND deleted_at IS NULL', [classId]);
+  const batchId = classRow.rows[0]?.batch_id;
+
+  if (batchId) {
+    const result = await pool.query(
+      `SELECT s.*, u.email, u.mobile, bs.enrollment_date
+       FROM students s
+       JOIN users u ON s.user_id = u.id
+       JOIN batch_students bs ON s.id = bs.student_id
+       WHERE bs.batch_id = $1 AND bs.status = 'active' AND s.deleted_at IS NULL
+       ORDER BY s.first_name`,
+      [batchId]
+    );
+    return result.rows;
+  }
+
+  // Otherwise fall back to directly enrolled class students
   const result = await pool.query(
     `SELECT s.*, u.email, u.mobile, cs.enrollment_date
      FROM students s
      JOIN users u ON s.user_id = u.id
      JOIN class_students cs ON s.id = cs.student_id
-     WHERE cs.class_id = $1 AND cs.status = 'active' AND s.deleted_at IS NULL`,
+     WHERE cs.class_id = $1 AND cs.status = 'active' AND s.deleted_at IS NULL
+     ORDER BY s.first_name`,
     [classId]
   );
   return result.rows;

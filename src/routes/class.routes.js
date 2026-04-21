@@ -18,6 +18,11 @@ const createValidation = [
     if (!isNaN(parseInt(value))) return true;
     throw new Error('Coach ID must be a number');
   }),
+  body('batchId').custom((value) => {
+    if (value === '' || value === undefined || value === null) return true;
+    if (!isNaN(parseInt(value))) return true;
+    throw new Error('Batch ID must be a number');
+  }),
   body('skillLevel').optional().isIn(['beginner', 'intermediate', 'advanced', 'all']).withMessage('Invalid skill level'),
   validate
 ];
@@ -27,6 +32,11 @@ const updateValidation = [
   body('dayOfWeek').optional().isIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'multiple']).withMessage('Invalid day of week'),
   body('capacity').optional().isInt({ min: 1 }).withMessage('Capacity must be at least 1'),
   body('isActive').optional().isBoolean().withMessage('isActive must be boolean'),
+  body('batchId').custom((value) => {
+    if (value === '' || value === undefined || value === null) return true;
+    if (!isNaN(parseInt(value))) return true;
+    throw new Error('Batch ID must be a number');
+  }),
   validate
 ];
 
