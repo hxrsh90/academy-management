@@ -18,6 +18,7 @@ const Payments = () => {
     if (user?.role === 'admin' || user?.role === 'super_admin') {
       fetchStudents();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchPayments = async () => {

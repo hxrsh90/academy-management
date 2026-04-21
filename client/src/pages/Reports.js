@@ -19,6 +19,7 @@ const Reports = () => {
     if (activeTab !== 'dashboard') {
       fetchReport();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, dateRange]);
 
   const fetchDashboardStats = async () => {

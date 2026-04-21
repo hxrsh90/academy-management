@@ -15,12 +15,14 @@ const StudentDetail = () => {
 
   useEffect(() => {
     fetchStudentData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
     if (!dataLoaded[activeTab] && activeTab !== 'info') {
       fetchTabData(activeTab);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchStudentData = async () => {

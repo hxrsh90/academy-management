@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const Attendance = () => {
+  // eslint-disable-next-line no-unused-vars
   const { user } = useAuth();
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState('');
@@ -14,6 +15,7 @@ const Attendance = () => {
 
   useEffect(() => {
     fetchClasses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -21,6 +23,7 @@ const Attendance = () => {
       fetchClassStudents();
       fetchAttendance();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass, selectedDate]);
 
   const fetchClasses = async () => {
