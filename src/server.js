@@ -29,24 +29,40 @@ const limiter = rateLimit({
 
 app.use(helmet());
 
-// CORS configuration for multiple environments
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:3000'];
+// CORS configuration
+// In unified deployment (frontend + API on same domain), same-origin is auto-allowed.
+// Explicit ALLOWED_ORIGINS env var allows additional origins (for split deployments).
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, curl, same-origin)
     if (!origin) return callback(null, true);
-    
-    // Allow all origins in development
+
+    // Allow all in development
     if (process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+
+    // Allow localhost for dev tools
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow any Vercel deployment URL for this project
+    if (/^https:\/\/academy-management[\w-]*\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow explicitly whitelisted origins from env var
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true
 }));
