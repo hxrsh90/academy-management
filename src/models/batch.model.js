@@ -3,11 +3,13 @@ const { pool } = require('../config/database');
 const findAll = async (filters = {}) => {
   const { search, sportType, status, coachId, page = 1, limit = 10 } = filters;
   let query = `
-    SELECT b.*, 
-           u.first_name || ' ' || u.last_name as coach_name,
+    SELECT b.*,
+           COALESCE(cs.first_name || ' ' || cs.last_name, cu.email, cu.mobile) as coach_name,
+           cu.mobile as coach_mobile,
            COUNT(bs.id) as enrolled_count
     FROM batches b
-    LEFT JOIN users u ON b.coach_id = u.id
+    LEFT JOIN users cu ON b.coach_id = cu.id
+    LEFT JOIN students cs ON cu.id = cs.user_id
     LEFT JOIN batch_students bs ON b.id = bs.batch_id AND bs.status = 'active'
     WHERE b.deleted_at IS NULL
   `;
@@ -35,7 +37,7 @@ const findAll = async (filters = {}) => {
     paramIndex++;
   }
 
-  query += ` GROUP BY b.id, u.first_name, u.last_name ORDER BY b.created_at DESC`;
+  query += ` GROUP BY b.id, cs.first_name, cs.last_name, cu.email, cu.mobile ORDER BY b.created_at DESC`;
 
   // Pagination
   const offset = (page - 1) * limit;
@@ -48,9 +50,12 @@ const findAll = async (filters = {}) => {
 
 const findById = async (id) => {
   const result = await pool.query(
-    `SELECT b.*, u.first_name || ' ' || u.last_name as coach_name
+    `SELECT b.*,
+            COALESCE(cs.first_name || ' ' || cs.last_name, cu.email, cu.mobile) as coach_name,
+            cu.mobile as coach_mobile
      FROM batches b
-     LEFT JOIN users u ON b.coach_id = u.id
+     LEFT JOIN users cu ON b.coach_id = cu.id
+     LEFT JOIN students cs ON cu.id = cs.user_id
      WHERE b.id = $1 AND b.deleted_at IS NULL`,
     [id]
   );
