@@ -39,7 +39,7 @@ const findAll = async (filters = {}, page = 1, limit = 20) => {
 
 const findById = async (id) => {
   const result = await pool.query(
-    `SELECT id, email, mobile, role, status, email_verified_at, mobile_verified_at, created_at, updated_at
+    `SELECT id, email, mobile, password_hash, role, status, email_verified_at, mobile_verified_at, created_at, updated_at
      FROM users WHERE id = $1 AND deleted_at IS NULL`,
     [id]
   );

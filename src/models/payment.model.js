@@ -58,7 +58,16 @@ const findById = async (id) => {
 };
 
 const create = async (paymentData) => {
-  const { studentId, amount, paymentDate, paymentMode, invoiceNumber, feeType, receiptUrl, recordedBy, notes } = paymentData;
+  // Accept both snake_case (from service after mapping) and camelCase (direct use)
+  const studentId = paymentData.student_id ?? paymentData.studentId;
+  const amount = paymentData.amount;
+  const paymentDate = paymentData.payment_date ?? paymentData.paymentDate;
+  const paymentMode = paymentData.payment_mode ?? paymentData.paymentMode;
+  const invoiceNumber = paymentData.invoice_number ?? paymentData.invoiceNumber;
+  const feeType = paymentData.fee_type ?? paymentData.feeType;
+  const receiptUrl = paymentData.receipt_url ?? paymentData.receiptUrl;
+  const recordedBy = paymentData.recorded_by ?? paymentData.recordedBy;
+  const notes = paymentData.notes;
 
   const result = await pool.query(
     `INSERT INTO payments (student_id, amount, payment_date, payment_mode, invoice_number, fee_type, receipt_url, recorded_by, notes)
