@@ -10,11 +10,9 @@ const BatchDetail = () => {
   const [batch, setBatch] = useState(null);
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [availableStudents, setAvailableStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('students');
   const [showAddStudent, setShowAddStudent] = useState(false);
-  const [showAddClass, setShowAddClass] = useState(false);
 
   const canManage = user?.role === 'admin' || user?.role === 'super_admin';
 
@@ -52,26 +50,10 @@ const BatchDetail = () => {
 
   const fetchClasses = async () => {
     try {
-      const [batchClasses, allClasses] = await Promise.all([
-        api.get(`/batches/${id}/classes`),
-        canManage ? api.get('/classes') : Promise.resolve({ data: { data: [] } })
-      ]);
-      setClasses(batchClasses.data.data || []);
-      // Filter out classes already in this batch
-      const batchClassIds = new Set((batchClasses.data.data || []).map(c => c.id));
-      setAvailableStudents(allClasses.data.data.filter(c => !batchClassIds.has(c.id)));
+      const response = await api.get(`/batches/${id}/classes`);
+      setClasses(response.data.data || []);
     } catch (err) {
       console.error('Failed to fetch classes:', err);
-    }
-  };
-
-  const handleAddStudent = async (studentId) => {
-    try {
-      await api.post(`/batches/${id}/students`, { studentId });
-      fetchStudents();
-      setShowAddStudent(false);
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to add student');
     }
   };
 
@@ -82,16 +64,6 @@ const BatchDetail = () => {
       fetchStudents();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to remove student');
-    }
-  };
-
-  const handleLinkClass = async (classId) => {
-    try {
-      await api.put(`/classes/${classId}`, { batchId: parseInt(id) });
-      fetchClasses();
-      setShowAddClass(false);
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to link class');
     }
   };
 
