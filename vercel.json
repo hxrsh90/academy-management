@@ -1,32 +1,13 @@
 {
   "version": 2,
-  "name": "academy-app",
-  "builds": [
-    {
-      "src": "src/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "src/server.js" },
-    { "src": "/uploads/(.*)", "dest": "src/server.js" },
-    { "src": "/", "dest": "/index.html" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/build",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "env": {
-    "NODE_ENV": "production",
     "CI": "false",
     "DISABLE_ESLINT_PLUGIN": "true"
-  },
-  "github": {
-    "enabled": true,
-    "silent": false,
-    "autoJobCancelation": true
   }
 }
+
