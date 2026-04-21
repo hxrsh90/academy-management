@@ -1,10 +1,15 @@
 {
   "version": 2,
-  "name": "academy-api",
+  "name": "academy-app",
   "builds": [
     {
       "src": "src/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "build" }
     }
   ],
   "routes": [
@@ -17,8 +22,16 @@
       "dest": "src/server.js"
     },
     {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf|map|json))",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "src/server.js"
+      "dest": "/index.html"
     }
   ],
   "env": {

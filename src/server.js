@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -64,8 +65,18 @@ app.get('/api/v1/health', (req, res) => {
   res.json({ success: true, message: 'Academy Management API is running' });
 });
 
-app.use('*', (req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
+// Serve React frontend build in production (unified deployment)
+const clientBuildPath = path.join(__dirname, '..', 'client', 'build');
+app.use(express.static(clientBuildPath));
+
+// SPA fallback: serve index.html for any non-API route
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ success: false, error: 'Route not found' });
+  }
+  res.sendFile(path.join(clientBuildPath, 'index.html'), (err) => {
+    if (err) next();
+  });
 });
 
 app.use(errorHandler);
