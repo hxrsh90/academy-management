@@ -45,6 +45,7 @@ const Layout = () => {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: 'fa-home' },
     { path: '/students', label: 'Students', icon: 'fa-users' },
+    { path: '/batches', label: 'Batches', icon: 'fa-layer-group' },
     { path: '/classes', label: 'Classes', icon: 'fa-chalkboard' },
     { path: '/attendance', label: 'Attendance', icon: 'fa-clipboard-check' },
     { path: '/payments', label: 'Payments', icon: 'fa-rupee-sign' },

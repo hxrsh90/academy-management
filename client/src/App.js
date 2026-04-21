@@ -10,6 +10,8 @@ import Students from './pages/Students';
 import StudentDetail from './pages/StudentDetail';
 import Classes from './pages/Classes';
 import ClassDetail from './pages/ClassDetail';
+import Batches from './pages/Batches';
+import BatchDetail from './pages/BatchDetail';
 import Attendance from './pages/Attendance';
 import Payments from './pages/Payments';
 import Reports from './pages/Reports';
@@ -36,6 +38,8 @@ function App() {
           <Route path="/students/:id" element={<StudentDetail />} />
           <Route path="/classes" element={<Classes />} />
           <Route path="/classes/:id" element={<ClassDetail />} />
+          <Route path="/batches" element={<Batches />} />
+          <Route path="/batches/:id" element={<BatchDetail />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/reports" element={<Reports />} />
