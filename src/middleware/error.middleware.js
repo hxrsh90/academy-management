@@ -47,9 +47,15 @@ const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Internal server error';
 
-  if (process.env.NODE_ENV === 'development') {
-    console.error('ERROR:', err);
-  }
+  // Always log errors (Vercel function logs help debug prod issues)
+  console.error('[ERROR]', {
+    path: req.path,
+    method: req.method,
+    name: err.name,
+    message: err.message,
+    code: err.code,
+    stack: err.stack
+  });
 
   if (err.name === 'ValidationError' && err.details) {
     return res.status(400).json({
