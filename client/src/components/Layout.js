@@ -49,7 +49,10 @@ const Layout = () => {
     { path: '/classes', label: 'Classes', icon: 'fa-chalkboard' },
     { path: '/attendance', label: 'Attendance', icon: 'fa-clipboard-check' },
     { path: '/payments', label: 'Payments', icon: 'fa-rupee-sign' },
-    ...(user?.role === 'admin' || user?.role === 'super_admin' ? [{ path: '/reports', label: 'Reports', icon: 'fa-chart-bar' }] : []),
+    ...(user?.role === 'admin' || user?.role === 'super_admin' ? [
+      { path: '/reports', label: 'Reports', icon: 'fa-chart-bar' },
+      { path: '/import', label: 'Bulk Import', icon: 'fa-file-import' }
+    ] : []),
     ...(user?.role === 'super_admin' ? [{ path: '/users', label: 'Users', icon: 'fa-user-shield' }] : [])
   ];
 

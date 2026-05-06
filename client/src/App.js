@@ -15,6 +15,7 @@ import BatchDetail from './pages/BatchDetail';
 import Attendance from './pages/Attendance';
 import Payments from './pages/Payments';
 import Reports from './pages/Reports';
+import BulkImport from './pages/BulkImport';
 
 function App() {
   const { loading } = useAuth();
@@ -43,6 +44,7 @@ function App() {
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/import" element={<BulkImport />} />
         </Route>
       </Route>
     </Routes>

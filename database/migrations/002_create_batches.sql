@@ -39,8 +39,10 @@ CREATE INDEX IF NOT EXISTS idx_batch_students_batch_id ON batch_students(batch_i
 CREATE INDEX IF NOT EXISTS idx_batch_students_student_id ON batch_students(student_id);
 CREATE INDEX IF NOT EXISTS idx_classes_batch_id ON classes(batch_id);
 
--- Create trigger for batches updated_at
+-- Create trigger for batches updated_at (drop first if exists)
+DROP TRIGGER IF EXISTS update_batches_updated_at ON batches;
 CREATE TRIGGER update_batches_updated_at BEFORE UPDATE ON batches FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Create trigger for batch_students updated_at
+-- Create trigger for batch_students updated_at (drop first if exists)
+DROP TRIGGER IF EXISTS update_batch_students_updated_at ON batch_students;
 CREATE TRIGGER update_batch_students_updated_at BEFORE UPDATE ON batch_students FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

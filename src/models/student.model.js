@@ -14,6 +14,18 @@ const findAll = async (filters = {}, page = 1, limit = 20) => {
     whereClause += ` AND s.skill_level = $${paramIndex++}`;
     params.push(filters.skill_level);
   }
+  if (filters.sport) {
+    whereClause += ` AND s.sport = $${paramIndex++}`;
+    params.push(filters.sport);
+  }
+  if (filters.spoc) {
+    whereClause += ` AND s.spoc = $${paramIndex++}`;
+    params.push(filters.spoc);
+  }
+  if (filters.plan) {
+    whereClause += ` AND s.plan = $${paramIndex++}`;
+    params.push(filters.plan);
+  }
   if (filters.search) {
     whereClause += ` AND (s.first_name ILIKE $${paramIndex} OR s.last_name ILIKE $${paramIndex} OR u.mobile ILIKE $${paramIndex})`;
     params.push(`%${filters.search}%`);
@@ -26,6 +38,10 @@ const findAll = async (filters = {}, page = 1, limit = 20) => {
 
   const query = `
     SELECT s.id, s.first_name, s.last_name, s.skill_level, s.enrollment_status, s.enrollment_date,
+           s.spoc, s.sport, s.plan, s.date_of_payment, s.additional_days, s.last_membership_date,
+           s.registration_fees, s.discount_registration, s.membership_amount, s.discount_membership,
+           s.sibling_discount, s.total_amount, s.membership_paid, s.pending_amount, s.pending_paid_on,
+           s.remarks, s.import_batch_id,
            u.mobile, u.email, u.status as user_status
     FROM students s
     JOIN users u ON s.user_id = u.id
@@ -50,6 +66,17 @@ const findById = async (id) => {
   return result.rows[0] || null;
 };
 
+const findByMobile = async (mobile) => {
+  const result = await pool.query(
+    `SELECT s.*, u.email, u.mobile, u.status as user_status
+     FROM students s
+     JOIN users u ON s.user_id = u.id
+     WHERE u.mobile = $1 AND s.deleted_at IS NULL`,
+    [mobile]
+  );
+  return result.rows[0] || null;
+};
+
 const findByUserId = async (userId) => {
   const result = await pool.query(
     `SELECT s.*, u.email, u.mobile
@@ -65,16 +92,29 @@ const create = async (studentData) => {
   const {
     userId, firstName, lastName, dateOfBirth, gender, parentId,
     emergencyContactName, emergencyContactPhone, medicalInfo, bloodGroup,
-    photoUrl, skillLevel
+    photoUrl, skillLevel,
+    spoc, sport, plan, dateOfPayment, additionalDays, lastMembershipDate,
+    registrationFees, discountRegistration, membershipAmount, discountMembership,
+    siblingDiscount, totalAmount, membershipPaid, pendingAmount, pendingPaidOn,
+    remarks, importBatchId
   } = studentData;
 
   const result = await pool.query(
     `INSERT INTO students (user_id, first_name, last_name, date_of_birth, gender, parent_id,
-     emergency_contact_name, emergency_contact_phone, medical_info, blood_group, photo_url, skill_level)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     emergency_contact_name, emergency_contact_phone, medical_info, blood_group, photo_url, skill_level,
+     spoc, sport, plan, date_of_payment, additional_days, last_membership_date,
+     registration_fees, discount_registration, membership_amount, discount_membership,
+     sibling_discount, total_amount, membership_paid, pending_amount, pending_paid_on,
+     remarks, import_batch_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+             $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
      RETURNING *`,
     [userId, firstName, lastName, dateOfBirth, gender, parentId,
-     emergencyContactName, emergencyContactPhone, medicalInfo, bloodGroup, photoUrl, skillLevel || 'beginner']
+     emergencyContactName, emergencyContactPhone, medicalInfo, bloodGroup, photoUrl, skillLevel || 'beginner',
+     spoc, sport, plan, dateOfPayment, additionalDays || 0, lastMembershipDate,
+     registrationFees || 0, discountRegistration || 0, membershipAmount || 0, discountMembership || 0,
+     siblingDiscount || 0, totalAmount || 0, membershipPaid || 0, pendingAmount || 0, pendingPaidOn,
+     remarks, importBatchId]
   );
   return result.rows[0];
 };
@@ -82,7 +122,11 @@ const create = async (studentData) => {
 const update = async (id, updateData) => {
   const allowedFields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'parent_id',
     'emergency_contact_name', 'emergency_contact_phone', 'medical_info', 'blood_group',
-    'photo_url', 'skill_level', 'enrollment_status'];
+    'photo_url', 'skill_level', 'enrollment_status',
+    'spoc', 'sport', 'plan', 'date_of_payment', 'additional_days', 'last_membership_date',
+    'registration_fees', 'discount_registration', 'membership_amount', 'discount_membership',
+    'sibling_discount', 'total_amount', 'membership_paid', 'pending_amount', 'pending_paid_on',
+    'remarks'];
   const updates = [];
   const values = [];
   let paramIndex = 1;
@@ -180,6 +224,7 @@ module.exports = {
   findAll,
   findById,
   findByUserId,
+  findByMobile,
   create,
   update,
   softDelete,

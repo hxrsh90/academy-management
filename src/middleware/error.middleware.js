@@ -1,3 +1,5 @@
+const { logger, sanitizeData } = require('../utils/logger');
+
 class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
@@ -48,13 +50,15 @@ const errorHandler = (err, req, res, next) => {
   err.message = err.message || 'Internal server error';
 
   // Always log errors (Vercel function logs help debug prod issues)
-  console.error('[ERROR]', {
+  logger.error('Error occurred', {
     path: req.path,
     method: req.method,
     name: err.name,
     message: err.message,
     code: err.code,
-    stack: err.stack
+    stack: err.stack,
+    ip: req.ip || req.connection.remoteAddress,
+    body: sanitizeData(req.body)
   });
 
   if (err.name === 'ValidationError' && err.details) {

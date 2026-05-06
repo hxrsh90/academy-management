@@ -5,6 +5,8 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const { logger } = require('./utils/logger');
+const { requestLogger, errorLogger } = require('./middleware/logging.middleware');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const studentRoutes = require('./routes/student.routes');
@@ -13,6 +15,7 @@ const batchRoutes = require('./routes/batch.routes');
 const attendanceRoutes = require('./routes/attendance.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const reportRoutes = require('./routes/report.routes');
+const importRoutes = require('./routes/import.routes');
 const { errorHandler } = require('./middleware/error.middleware');
 
 const app = express();
@@ -28,6 +31,9 @@ const limiter = rateLimit({
 });
 
 app.use(helmet());
+
+// Request logging middleware
+app.use(requestLogger);
 
 // CORS configuration
 // In unified deployment (frontend + API on same domain), same-origin is auto-allowed.
@@ -80,8 +86,10 @@ app.use('/api/v1/batches', batchRoutes);
 app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/import', importRoutes);
 
 app.get('/api/v1/health', (req, res) => {
+  logger.info('Health check endpoint called');
   res.json({ success: true, message: 'Academy Management API is running' });
 });
 
@@ -99,12 +107,15 @@ app.get('*', (req, res, next) => {
   });
 });
 
+// Error logging middleware (before error handler)
+app.use(errorLogger);
+
 app.use(errorHandler);
 
 // Only listen when running directly (not in serverless)
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    logger.info(`Server running on port ${PORT}`, { environment: process.env.NODE_ENV || 'development' });
   });
 }
 

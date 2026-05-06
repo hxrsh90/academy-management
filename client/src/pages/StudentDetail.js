@@ -11,7 +11,7 @@ const StudentDetail = () => {
   const [loading, setLoading] = useState(true);
   const [tabLoading, setTabLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
-  const [dataLoaded, setDataLoaded] = useState({ info: false, classes: false, attendance: false, payments: false });
+  const [dataLoaded, setDataLoaded] = useState({ info: false, classes: false, attendance: false, payments: false, membership: false });
 
   useEffect(() => {
     fetchStudentData();
@@ -115,7 +115,7 @@ const StudentDetail = () => {
       </div>
 
       <div className="flex gap-4 mb-6 border-b">
-        {['info', 'classes', 'attendance', 'payments'].map((tab) => (
+        {['info', 'membership', 'classes', 'attendance', 'payments'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -135,10 +135,56 @@ const StudentDetail = () => {
             <div><strong>Gender:</strong> <span className="capitalize">{student.gender || 'N/A'}</span></div>
             <div><strong>Blood Group:</strong> {student.blood_group || 'N/A'}</div>
             <div><strong>Enrollment Date:</strong> {new Date(student.enrollment_date).toLocaleDateString()}</div>
+            <div><strong>SPOC:</strong> {student.spoc || 'N/A'}</div>
+            <div><strong>Sport:</strong> {student.sport || 'N/A'}</div>
+            <div><strong>Plan:</strong> {student.plan || 'N/A'}</div>
             <div className="col-span-2"><strong>Emergency Contact:</strong> {student.emergency_contact_name || 'N/A'} {student.emergency_contact_phone && `(${student.emergency_contact_phone})`}</div>
             {student.medical_info && (
               <div className="col-span-2"><strong>Medical Info:</strong> {student.medical_info}</div>
             )}
+            {student.remarks && (
+              <div className="col-span-2"><strong>Remarks:</strong> {student.remarks}</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'membership' && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div><strong>Date of Joining:</strong> {student.enrollment_date ? new Date(student.enrollment_date).toLocaleDateString() : 'N/A'}</div>
+            <div><strong>Date of Payment:</strong> {student.date_of_payment ? new Date(student.date_of_payment).toLocaleDateString() : 'N/A'}</div>
+            <div><strong>Additional Days:</strong> {student.additional_days || 0}</div>
+            <div><strong>Last Day of Membership:</strong> {student.last_membership_date ? new Date(student.last_membership_date).toLocaleDateString() : 'N/A'}</div>
+          </div>
+          <div className="mt-6 border-t pt-4">
+            <h3 className="font-bold text-lg mb-4">Financial Details</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div><strong>Registration Fees:</strong> ₹{student.registration_fees || 0}</div>
+              <div><strong>Discount on Registration:</strong> ₹{student.discount_registration || 0}</div>
+              <div><strong>Membership Amount:</strong> ₹{student.membership_amount || 0}</div>
+              <div><strong>Discount on Membership:</strong> ₹{student.discount_membership || 0}</div>
+              <div><strong>Sibling/Referral Discount:</strong> ₹{student.sibling_discount || 0}</div>
+              <div className="col-span-2 bg-blue-50 p-4 rounded">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">₹{student.total_amount || 0}</div>
+                    <div className="text-sm text-gray-600">Total Amount</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">₹{student.membership_paid || 0}</div>
+                    <div className="text-sm text-gray-600">Paid</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-red-600">₹{student.pending_amount || 0}</div>
+                    <div className="text-sm text-gray-600">Pending</div>
+                  </div>
+                </div>
+              </div>
+              {student.pending_paid_on && (
+                <div className="col-span-2"><strong>Pending Amount to be Paid On:</strong> {new Date(student.pending_paid_on).toLocaleDateString()}</div>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -44,6 +44,14 @@ const create = async (data) => {
   return { ...student, email: user.email, mobile: user.mobile };
 };
 
+const findByMobile = async (mobile) => {
+  const student = await studentModel.findByMobile(mobile);
+  if (!student) {
+    throw new NotFoundError('Student not found');
+  }
+  return student;
+};
+
 const update = async (id, data) => {
   const student = await studentModel.findById(id);
   if (!student) {
@@ -63,7 +71,23 @@ const update = async (id, data) => {
     bloodGroup: 'blood_group',
     photoUrl: 'photo_url',
     skillLevel: 'skill_level',
-    enrollmentStatus: 'enrollment_status'
+    enrollmentStatus: 'enrollment_status',
+    spoc: 'spoc',
+    sport: 'sport',
+    plan: 'plan',
+    dateOfPayment: 'date_of_payment',
+    additionalDays: 'additional_days',
+    lastMembershipDate: 'last_membership_date',
+    registrationFees: 'registration_fees',
+    discountRegistration: 'discount_registration',
+    membershipAmount: 'membership_amount',
+    discountMembership: 'discount_membership',
+    siblingDiscount: 'sibling_discount',
+    totalAmount: 'total_amount',
+    membershipPaid: 'membership_paid',
+    pendingAmount: 'pending_amount',
+    pendingPaidOn: 'pending_paid_on',
+    remarks: 'remarks'
   };
 
   for (const [key, value] of Object.entries(data)) {
@@ -112,6 +136,7 @@ const getPayments = async (id, filters) => {
 module.exports = {
   findAll,
   findById,
+  findByMobile,
   create,
   update,
   remove,

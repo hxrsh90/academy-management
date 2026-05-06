@@ -1,4 +1,5 @@
 const twilio = require('twilio');
+const { logger } = require('./logger');
 
 let twilioClient = null;
 
@@ -7,15 +8,16 @@ if (process.env.SMS_PROVIDER === 'twilio' &&
     process.env.TWILIO_ACCOUNT_SID.startsWith('AC')) {
   try {
     twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    logger.info('Twilio client initialized successfully');
   } catch (error) {
-    console.warn('Twilio initialization failed, using mock mode:', error.message);
+    logger.warn('Twilio initialization failed, using mock mode', { error: error.message });
     twilioClient = null;
   }
 }
 
 const sendSMS = async (to, message) => {
   if (!twilioClient) {
-    console.log(`[SMS Mock] To: ${to}, Message: ${message}`);
+    logger.info('[SMS Mock] Sending SMS', { to, message });
     return { success: true, sid: 'mock-sid' };
   }
 
@@ -25,9 +27,10 @@ const sendSMS = async (to, message) => {
       from: process.env.TWILIO_PHONE_NUMBER,
       to: to.startsWith('+') ? to : `+91${to}`
     });
+    logger.info('SMS sent successfully via Twilio', { to, sid: result.sid });
     return { success: true, sid: result.sid };
   } catch (error) {
-    console.error('SMS sending failed:', error);
+    logger.error('SMS sending failed', { to, error: error.message });
     throw new Error('Failed to send SMS');
   }
 };

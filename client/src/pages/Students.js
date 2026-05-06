@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const Students = () => {
+  const { user } = useAuth();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -11,7 +13,8 @@ const Students = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     mobile: '', email: '', password: '', firstName: '', lastName: '',
-    dateOfBirth: '', gender: 'male', skillLevel: 'beginner'
+    dateOfBirth: '', gender: 'male', skillLevel: 'beginner',
+    spoc: '', sport: '', plan: ''
   });
 
   useEffect(() => {
@@ -22,7 +25,7 @@ const Students = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/students?page=${page}&limit=10&search=${search}`);
+      const response = await api.get(`/students?page=${page}&limit=20&search=${search}`);
       setStudents(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (error) {
@@ -55,22 +58,33 @@ const Students = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Students</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          <i className="fas fa-plus mr-2"></i>Add Student
-        </button>
+        <div className="flex gap-3">
+          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+            <Link
+              to="/import"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              <i className="fas fa-file-import mr-2"></i>Bulk Import
+            </Link>
+          )}
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            <i className="fas fa-plus mr-2"></i>Add Student
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-4">
         <input
           type="text"
           placeholder="Search students..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="w-full max-w-md px-4 py-2 border rounded-lg"
         />
+        <span className="text-sm text-gray-500">20 per page</span>
       </div>
 
       {loading ? (
@@ -85,9 +99,11 @@ const Students = () => {
                 <tr>
                   <th className="px-4 py-3 text-left">Name</th>
                   <th className="px-4 py-3 text-left">Mobile</th>
-                  <th className="px-4 py-3 text-left">Skill Level</th>
+                  <th className="px-4 py-3 text-left">SPOC</th>
+                  <th className="px-4 py-3 text-left">Sport</th>
+                  <th className="px-4 py-3 text-left">Plan</th>
                   <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">Enrolled</th>
+                  <th className="px-4 py-3 text-left">Paid/Pending</th>
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
@@ -96,13 +112,23 @@ const Students = () => {
                   <tr key={student.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">{student.first_name} {student.last_name}</td>
                     <td className="px-4 py-3">{student.mobile}</td>
-                    <td className="px-4 py-3 capitalize">{student.skill_level}</td>
+                    <td className="px-4 py-3">{student.spoc || '-'}</td>
+                    <td className="px-4 py-3">{student.sport || '-'}</td>
+                    <td className="px-4 py-3">{student.plan || '-'}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs ${getStatusColor(student.enrollment_status)}`}>
                         {student.enrollment_status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{new Date(student.enrollment_date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      {student.total_amount > 0 && (
+                        <div className="text-sm">
+                          <span className="text-green-600">₹{student.membership_paid || 0}</span>
+                          <span className="text-gray-400 mx-1">/</span>
+                          <span className="text-red-600">₹{student.pending_amount || 0}</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <Link to={`/students/${student.id}`} className="text-blue-600 hover:underline">
                         View

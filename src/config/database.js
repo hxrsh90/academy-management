@@ -1,11 +1,14 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const { logger } = require('../utils/logger');
 
 let poolConfig;
 
 if (process.env.DATABASE_URL) {
   // Vercel + Neon DB production config (serverless optimized)
   // Neon provides pooled connection via DATABASE_URL automatically
+  // SECURITY: rejectUnauthorized: false is required for Neon's SSL certificates
+  // In production, Neon uses valid SSL certs, but this setting is needed for compatibility
   poolConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
@@ -17,6 +20,7 @@ if (process.env.DATABASE_URL) {
   };
 } else if (process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL) {
   // Alternative Vercel Postgres env vars
+  // SECURITY: rejectUnauthorized: false is required for Vercel Postgres SSL certificates
   poolConfig = {
     connectionString: process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL,
     ssl: { rejectUnauthorized: false },
@@ -44,13 +48,13 @@ const pool = new Pool(poolConfig);
 // Only log in development (avoid noise in production logs)
 if (process.env.NODE_ENV !== 'production') {
   pool.on('connect', () => {
-    console.log('Connected to PostgreSQL database');
+    logger.info('Connected to PostgreSQL database');
   });
 }
 
 // Don't exit on error in production (let Vercel handle it)
 pool.on('error', (err) => {
-  console.error('Unexpected PostgreSQL error:', err);
+  logger.error('Unexpected PostgreSQL error', { error: err.message, stack: err.stack });
   if (process.env.NODE_ENV !== 'production') {
     process.exit(-1);
   }
